@@ -1,0 +1,335 @@
+{smcl}
+{txt}{sf}{ul off}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Sean Hambali\Desktop\LPEM\Bu Hilda\Training PCA\pca.txt
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}30 May 2021, 16:37:35
+{txt}
+{com}. 
+. // we first load the data
+.         use "$output\pca_gsp.dta", clear
+{txt}
+{com}. 
+. // put the relevant variabels in global environment 
+.         gl xlist Ag Mining Constr Manuf Manuf_nd Transp Comm Energy TradeW TradeR RE Govt
+{txt}
+{com}.         gl id State 
+{txt}
+{com}.         
+. // taking a look at the data -- what do they tell us?
+.         br
+{txt}
+{com}.         describe $xlist 
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:Ag             }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Mining         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Constr         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Manuf          }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Manuf_nd       }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Transp         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Comm           }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Energy         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:TradeW         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:TradeR         }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:RE             }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:Govt           }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}
+{com}.         summarize $xlist
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}Ag {c |}{res}         50        2.48    2.394552         .5       10.6
+{txt}{space 6}Mining {c |}{res}         50       2.624    5.808704          0       31.6
+{txt}{space 6}Constr {c |}{res}         50       4.338    .8994079        2.9        8.4
+{txt}{space 7}Manuf {c |}{res}         50       9.784     4.76391         .8       21.4
+{txt}{space 4}Manuf_nd {c |}{res}         50       7.696    3.927037        1.7       16.7
+{txt}{hline 13}{c +}{hline 57}
+{space 6}Transp {c |}{res}         50       3.476     1.66213        1.5       12.1
+{txt}{space 8}Comm {c |}{res}         50       2.398    .8704889        1.3        5.7
+{txt}{space 6}Energy {c |}{res}         50       3.112    1.147071          1        7.5
+{txt}{space 6}TradeW {c |}{res}         50       6.348    1.308253        2.9        9.1
+{txt}{space 6}TradeR {c |}{res}         50       9.002    1.197871          6       11.5
+{txt}{hline 13}{c +}{hline 57}
+{space 10}RE {c |}{res}         50       17.09    5.220965       10.4       35.4
+{txt}{space 8}Govt {c |}{res}         50      12.934    2.798003          9       21.3
+{txt}
+{com}.         
+. // early look at the correlation between the original variables 
+.         corr $xlist
+{txt}(obs=50)
+
+             {c |}       Ag   Mining   Constr    Manuf Manuf_nd   Transp     Comm   Energy   TradeW   TradeR       RE     Govt
+{hline 13}{c +}{hline 108}
+          Ag {c |}{res}   1.0000
+      {txt}Mining {c |}{res}  -0.0645   1.0000
+      {txt}Constr {c |}{res}   0.0850  -0.0215   1.0000
+       {txt}Manuf {c |}{res}   0.0321  -0.4237  -0.1299   1.0000
+    {txt}Manuf_nd {c |}{res}  -0.1453  -0.1379  -0.3178   0.2037   1.0000
+      {txt}Transp {c |}{res}   0.2792   0.6115   0.0752  -0.3569  -0.1764   1.0000
+        {txt}Comm {c |}{res}  -0.1842  -0.1927  -0.0231  -0.3174  -0.0999  -0.0491   1.0000
+      {txt}Energy {c |}{res}   0.0433   0.3904   0.0130  -0.0508   0.0709  -0.0557  -0.1686   1.0000
+      {txt}TradeW {c |}{res}   0.2454  -0.5531  -0.0869   0.2707   0.0390  -0.2135   0.3302  -0.2671   1.0000
+      {txt}TradeR {c |}{res}   0.0946  -0.3960   0.4011   0.1946  -0.1208  -0.1478   0.1247   0.0295   0.1664   1.0000
+          {txt}RE {c |}{res}  -0.3013  -0.4063  -0.2529  -0.1821  -0.1333  -0.5035   0.1197  -0.3788   0.0405  -0.3086   1.0000
+        {txt}Govt {c |}{res}   0.1103   0.2307   0.1810  -0.4105  -0.2371   0.4275   0.1933   0.0454  -0.3428   0.2866  -0.3506   1.0000
+
+{txt}
+{com}.         
+. // preliminary PCA look 
+.         pca $xlist
+
+{txt}Principal components/correlation{col 50}Number of obs    = {res}        50
+{col 50}{txt}Number of comp.  = {res}        12
+{col 50}{txt}Trace            {col 67}=  {res}       12
+{col 5}{txt}Rotation: (unrotated = principal){col 50}Rho              = {res}    1.0000
+
+{txt}{col 5}{hline 13}{c TT}{hline 60}
+{col 5}   Component {c |}   Eigenvalue   Difference         Proportion   Cumulative
+{col 5}{hline 13}{c +}{hline 60}
+{col 5}{ralign 12:Comp1} {c |}{res}      2.94023      .932486             0.2450       0.2450
+{txt}{col 5}{ralign 12:Comp2} {c |}{res}      2.00775      .229787             0.1673       0.4123
+{txt}{col 5}{ralign 12:Comp3} {c |}{res}      1.77796      .490002             0.1482       0.5605
+{txt}{col 5}{ralign 12:Comp4} {c |}{res}      1.28796      .173323             0.1073       0.6678
+{txt}{col 5}{ralign 12:Comp5} {c |}{res}      1.11463      .260545             0.0929       0.7607
+{txt}{col 5}{ralign 12:Comp6} {c |}{res}       .85409       .15161             0.0712       0.8319
+{txt}{col 5}{ralign 12:Comp7} {c |}{res}      .702479     .0869593             0.0585       0.8904
+{txt}{col 5}{ralign 12:Comp8} {c |}{res}       .61552       .31198             0.0513       0.9417
+{txt}{col 5}{ralign 12:Comp9} {c |}{res}       .30354     .0767742             0.0253       0.9670
+{txt}{col 5}{ralign 12:Comp10} {c |}{res}      .226766     .0826879             0.0189       0.9859
+{txt}{col 5}{ralign 12:Comp11} {c |}{res}      .144078      .119082             0.0120       0.9979
+{txt}{col 5}{ralign 12:Comp12} {c |}{res}      .024996            .             0.0021       1.0000
+{txt}{col 5}{hline 13}{c BT}{hline 60}
+
+Principal components (eigenvectors) 
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  TT}{hline 13}
+{space 4}{space 0}{ralign 12:Variable}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}{space 1}{ralign 8:Comp6}{space 1}{space 1}{ralign 8:Comp7}{space 1}{space 1}{ralign 8:Comp8}{space 1}{space 1}{ralign 8:Comp9}{space 1}{space 1}{ralign 8:Comp10}{space 1}{space 1}{ralign 8:Comp11}{space 1}{space 1}{ralign 8:Comp12}{space 1}{c |}{space 1}{ralign 11:Unexplained}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c   +}{hline 13}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0991}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3001}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2178}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5302}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2369}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2728}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4281}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2892}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1919}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3143}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1596}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1143}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4842}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2939}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0552}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0326}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0082}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1117}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2660}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1533}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1286}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0667}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.5483}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4967}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.1480}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4070}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0448}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3323}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3390}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0095}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4797}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4773}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2781}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0918}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0779}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1876}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3056}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1039}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4934}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0133}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0802}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2255}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1044}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.5012}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4047}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0961}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1270}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3790}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.1540}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2223}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3250}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0136}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5453}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3158}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0189}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6039}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0047}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0347}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0054}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2401}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4462}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0401}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0298}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4322}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0171}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2492}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2168}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0650}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2347}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1248}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6434}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1159}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0763}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1752}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4904}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0525}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5429}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2362}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1892}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1101}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3607}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4284}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0188}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0884}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.2162}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0893}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3469}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3344}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2073}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6835}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1478}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0253}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0068}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0984}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4031}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0905}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3456}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2862}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0075}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4267}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1692}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2926}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2676}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0275}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2484}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.5695}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0653}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1990}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0430}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5731}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0780}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3311}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1246}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1127}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1478}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0971}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.6021}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3100}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0960}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1631}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3268}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2826}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4293}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0825}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3075}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0647}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2664}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1037}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1331}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0515}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2466}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6005}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.3700}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2592}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2150}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0848}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2201}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2736}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4854}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1054}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2797}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4960}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0257}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2181}}}{space 1}{c |}{space 1}{center 11:{res:{sf:          0}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  BT}{hline 13}
+
+{com}.         
+.         * visualize the eigenvalues 
+.         screeplot, yline(1)
+{res}{txt}
+{com}.         
+.         * following kaiser's rule, we select only components with eigenvalue (sum squared distances) > 1 
+.         pca $xlist, mineigen(1)
+
+{txt}Principal components/correlation{col 50}Number of obs    = {res}        50
+{col 50}{txt}Number of comp.  = {res}         5
+{col 50}{txt}Trace            {col 67}=  {res}       12
+{col 5}{txt}Rotation: (unrotated = principal){col 50}Rho              = {res}    0.7607
+
+{txt}{col 5}{hline 13}{c TT}{hline 60}
+{col 5}   Component {c |}   Eigenvalue   Difference         Proportion   Cumulative
+{col 5}{hline 13}{c +}{hline 60}
+{col 5}{ralign 12:Comp1} {c |}{res}      2.94023      .932486             0.2450       0.2450
+{txt}{col 5}{ralign 12:Comp2} {c |}{res}      2.00775      .229787             0.1673       0.4123
+{txt}{col 5}{ralign 12:Comp3} {c |}{res}      1.77796      .490002             0.1482       0.5605
+{txt}{col 5}{ralign 12:Comp4} {c |}{res}      1.28796      .173323             0.1073       0.6678
+{txt}{col 5}{ralign 12:Comp5} {c |}{res}      1.11463      .260545             0.0929       0.7607
+{txt}{col 5}{ralign 12:Comp6} {c |}{res}       .85409       .15161             0.0712       0.8319
+{txt}{col 5}{ralign 12:Comp7} {c |}{res}      .702479     .0869593             0.0585       0.8904
+{txt}{col 5}{ralign 12:Comp8} {c |}{res}       .61552       .31198             0.0513       0.9417
+{txt}{col 5}{ralign 12:Comp9} {c |}{res}       .30354     .0767742             0.0253       0.9670
+{txt}{col 5}{ralign 12:Comp10} {c |}{res}      .226766     .0826879             0.0189       0.9859
+{txt}{col 5}{ralign 12:Comp11} {c |}{res}      .144078      .119082             0.0120       0.9979
+{txt}{col 5}{ralign 12:Comp12} {c |}{res}      .024996            .             0.0021       1.0000
+{txt}{col 5}{hline 13}{c BT}{hline 60}
+
+Principal components (eigenvectors) 
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  TT}{hline 13}
+{space 4}{space 0}{ralign 12:Variable}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}{c |}{space 1}{ralign 11:Unexplained}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c   +}{hline 13}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0991}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3001}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2178}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5302}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2369}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2814}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4842}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2939}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0552}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0326}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0082}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1303}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.1480}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4070}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0448}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3323}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3390}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3291}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3056}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1039}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4934}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0133}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0802}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2635}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.1540}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2223}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3250}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0136}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5453}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3117}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4462}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0401}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0298}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4322}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0171}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1689}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0763}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1752}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4904}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0525}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5429}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1616}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.2162}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0893}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3469}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3344}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2073}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .4406}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3456}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2862}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0075}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4267}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1692}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2177}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0430}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5731}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0780}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3311}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1246}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1659}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3268}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2826}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4293}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0825}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3075}}}{space 1}{c |}{space 1}{center 11:{res:{sf:     .08379}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.3700}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2592}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2150}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0848}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2201}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3171}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  BT}{hline 13}
+
+{com}.         
+.         * selecting 
+.         pca $xlist, mineigen(1) blanks(.3)
+
+{txt}Principal components/correlation{col 50}Number of obs    = {res}        50
+{col 50}{txt}Number of comp.  = {res}         5
+{col 50}{txt}Trace            {col 67}=  {res}       12
+{col 5}{txt}Rotation: (unrotated = principal){col 50}Rho              = {res}    0.7607
+
+{txt}{col 5}{hline 13}{c TT}{hline 60}
+{col 5}   Component {c |}   Eigenvalue   Difference         Proportion   Cumulative
+{col 5}{hline 13}{c +}{hline 60}
+{col 5}{ralign 12:Comp1} {c |}{res}      2.94023      .932486             0.2450       0.2450
+{txt}{col 5}{ralign 12:Comp2} {c |}{res}      2.00775      .229787             0.1673       0.4123
+{txt}{col 5}{ralign 12:Comp3} {c |}{res}      1.77796      .490002             0.1482       0.5605
+{txt}{col 5}{ralign 12:Comp4} {c |}{res}      1.28796      .173323             0.1073       0.6678
+{txt}{col 5}{ralign 12:Comp5} {c |}{res}      1.11463      .260545             0.0929       0.7607
+{txt}{col 5}{ralign 12:Comp6} {c |}{res}       .85409       .15161             0.0712       0.8319
+{txt}{col 5}{ralign 12:Comp7} {c |}{res}      .702479     .0869593             0.0585       0.8904
+{txt}{col 5}{ralign 12:Comp8} {c |}{res}       .61552       .31198             0.0513       0.9417
+{txt}{col 5}{ralign 12:Comp9} {c |}{res}       .30354     .0767742             0.0253       0.9670
+{txt}{col 5}{ralign 12:Comp10} {c |}{res}      .226766     .0826879             0.0189       0.9859
+{txt}{col 5}{ralign 12:Comp11} {c |}{res}      .144078      .119082             0.0120       0.9979
+{txt}{col 5}{ralign 12:Comp12} {c |}{res}      .024996            .             0.0021       1.0000
+{txt}{col 5}{hline 13}{c BT}{hline 60}
+
+Principal components (eigenvectors)  (blanks are abs(loading)<{res:.3})
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  TT}{hline 13}
+{space 4}{space 0}{ralign 12:Variable}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}{c |}{space 1}{ralign 11:Unexplained}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c   +}{hline 13}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3001}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5302}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2814}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4842}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1303}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4070}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3323}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3390}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3291}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3056}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4934}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2635}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3250}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5453}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3117}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4462}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4322}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1689}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4904}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5429}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1616}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3469}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3344}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .4406}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3456}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4267}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2177}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5731}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3311}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1659}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3268}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4293}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3075}}}{space 1}{c |}{space 1}{center 11:{res:{sf:     .08379}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.3700}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3171}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  BT}{hline 13}
+
+{com}.         
+. // rotating the components to make interpretations easier 
+. 
+.         rotate, varimax blanks(.3) 
+
+{txt}Principal components/correlation{col 50}Number of obs    = {res}        50
+{col 50}{txt}Number of comp.  = {res}         5
+{col 50}{txt}Trace            {col 67}=  {res}       12
+{col 5}{txt}Rotation: orthogonal varimax (Kaiser off){col 50}Rho              = {res}    0.7607
+
+{txt}{col 5}{hline 13}{c TT}{hline 60}
+{col 5}   Component {c |}     Variance   Difference         Proportion   Cumulative
+{col 5}{hline 13}{c +}{hline 60}
+{col 5}{ralign 12:Comp1} {c |}{res}      2.30378      .223796             0.1920       0.1920
+{txt}{col 5}{ralign 12:Comp2} {c |}{res}      2.07998      .288015             0.1733       0.3653
+{txt}{col 5}{ralign 12:Comp3} {c |}{res}      1.79197      .269972             0.1493       0.5146
+{txt}{col 5}{ralign 12:Comp4} {c |}{res}        1.522     .0911907             0.1268       0.6415
+{txt}{col 5}{ralign 12:Comp5} {c |}{res}       1.4308            .             0.1192       0.7607
+{txt}{col 5}{hline 13}{c BT}{hline 60}
+
+Rotated components  (blanks are abs(loading)<{res:.3})
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  TT}{hline 13}
+{space 4}{space 0}{ralign 12:Variable}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}{c |}{space 1}{ralign 11:Unexplained}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c   +}{hline 13}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.3406}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5483}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2814}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.4584}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1303}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4714}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4049}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3291}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4325}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2635}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6801}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3117}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5789}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1689}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.7342}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1616}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3742}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3527}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .4406}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.5996}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .2177}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6651}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .1659}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4607}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3368}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3735}}}{space 1}{c |}{space 1}{center 11:{res:{sf:     .08379}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3797}}}{space 1}{space 1}{ralign 8:{res:{sf:{space 8}}}}{space 1}{c |}{space 1}{center 11:{res:{sf:      .3171}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}{c  BT}{hline 13}
+
+Component rotation matrix
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:Comp1}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.7363}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6505}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0658}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1116}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1337}}}{space 1}
+{space 4}{space 0}{ralign 12:Comp2}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.4083}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3015}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.8092}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1660}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2451}}}{space 1}
+{space 4}{space 0}{ralign 12:Comp3}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0117}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2367}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2352}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.7362}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5887}}}{space 1}
+{space 4}{space 0}{ralign 12:Comp4}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.5393}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6552}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.5260}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0556}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0056}}}{space 1}
+{space 4}{space 0}{ralign 12:Comp5}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0108}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0235}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0944}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6442}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.7586}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+
+{com}.         
+. // producing scatterplots of the loading 
+.         loadingplot, xli(0) yli(0) // to see which variables load highly on each component
+{res}{txt}
+{com}.         loadingplot, factors(3) // see more than 2 components
+{res}{txt}
+{com}.         
+.         * plot states with respect to their components scores
+.         scoreplot, mlabel($id)
+{res}{txt}
+{com}.         
+. // predicting the scores 
+.         estat loadings 
+
+{txt}Principal component loadings 
+{col 5}component normalization: sum of squares(column) = 1
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  .09912}}}{space 1}{space 1}{ralign 8:{res:{sf:   .3001}}}{space 1}{space 1}{ralign 8:{res:{sf:   .2178}}}{space 1}{space 1}{ralign 8:{res:{sf:   .5302}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.2369}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf:   .4842}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.2939}}}{space 1}{space 1}{ralign 8:{res:{sf:   .0552}}}{space 1}{space 1}{ralign 8:{res:{sf:  .03261}}}{space 1}{space 1}{ralign 8:{res:{sf: .008162}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf:    .148}}}{space 1}{space 1}{ralign 8:{res:{sf:    .407}}}{space 1}{space 1}{ralign 8:{res:{sf: -.04481}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.3323}}}{space 1}{space 1}{ralign 8:{res:{sf:   -.339}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  -.3056}}}{space 1}{space 1}{ralign 8:{res:{sf:   .1039}}}{space 1}{space 1}{ralign 8:{res:{sf:   .4934}}}{space 1}{space 1}{ralign 8:{res:{sf: -.01331}}}{space 1}{space 1}{ralign 8:{res:{sf: -.08023}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf:   -.154}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.2223}}}{space 1}{space 1}{ralign 8:{res:{sf:    .325}}}{space 1}{space 1}{ralign 8:{res:{sf:  .01358}}}{space 1}{space 1}{ralign 8:{res:{sf:   .5453}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf:   .4462}}}{space 1}{space 1}{ralign 8:{res:{sf:  .04008}}}{space 1}{space 1}{ralign 8:{res:{sf: -.02979}}}{space 1}{space 1}{ralign 8:{res:{sf:   .4322}}}{space 1}{space 1}{ralign 8:{res:{sf:  .01713}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -.07631}}}{space 1}{space 1}{ralign 8:{res:{sf:   .1752}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.4904}}}{space 1}{space 1}{ralign 8:{res:{sf:  .05245}}}{space 1}{space 1}{ralign 8:{res:{sf:   .5429}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf:   .2162}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.0893}}}{space 1}{space 1}{ralign 8:{res:{sf:   .3469}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.3344}}}{space 1}{space 1}{ralign 8:{res:{sf:   .2073}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  -.3456}}}{space 1}{space 1}{ralign 8:{res:{sf:   .2862}}}{space 1}{space 1}{ralign 8:{res:{sf:-.007535}}}{space 1}{space 1}{ralign 8:{res:{sf:   .4267}}}{space 1}{space 1}{ralign 8:{res:{sf:   .1692}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -.04305}}}{space 1}{space 1}{ralign 8:{res:{sf:   .5731}}}{space 1}{space 1}{ralign 8:{res:{sf:    .078}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.3311}}}{space 1}{space 1}{ralign 8:{res:{sf:   .1246}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  -.3268}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.2826}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.4293}}}{space 1}{space 1}{ralign 8:{res:{sf: -.08249}}}{space 1}{space 1}{ralign 8:{res:{sf:  -.3075}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf:     .37}}}{space 1}{space 1}{ralign 8:{res:{sf:   .2592}}}{space 1}{space 1}{ralign 8:{res:{sf:   -.215}}}{space 1}{space 1}{ralign 8:{res:{sf: -.08484}}}{space 1}{space 1}{ralign 8:{res:{sf:   .2201}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+
+{com}.         predict pc1 pc2 pc3 pc4 pc5, score
+
+{txt}Scoring coefficients for orthogonal varimax rotation
+{col 5}sum of squares(column-loading) = 1
+
+{space 4}{hline 13}{c  TT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:Variable}{space 1}{c |}{space 1}{ralign 8:Comp1}{space 1}{space 1}{ralign 8:Comp2}{space 1}{space 1}{ralign 8:Comp3}{space 1}{space 1}{ralign 8:Comp4}{space 1}{space 1}{ralign 8:Comp5}{space 1}
+{space 4}{hline 13}{c   +}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+{space 4}{space 0}{ralign 12:Ag}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.3406}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5483}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0006}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2226}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1354}}}{space 1}
+{space 4}{space 0}{ralign 12:Mining}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.4584}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2610}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.2094}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0283}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0462}}}{space 1}
+{space 4}{space 0}{ralign 12:Constr}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.1189}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0173}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.4714}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1198}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4049}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.2669}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0613}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1795}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4325}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2449}}}{space 1}
+{space 4}{space 0}{ralign 12:Manuf_nd}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0278}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0685}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0692}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0587}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6801}}}{space 1}
+{space 4}{space 0}{ralign 12:Transp}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.0796}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.5789}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1709}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1135}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0716}}}{space 1}
+{space 4}{space 0}{ralign 12:Comm}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.1444}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0658}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0450}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.7342}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0907}}}{space 1}
+{space 4}{space 0}{ralign 12:Energy}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.3742}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0184}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2190}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.1311}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3527}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeW}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.5996}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1433}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0014}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1472}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.1023}}}{space 1}
+{space 4}{space 0}{ralign 12:TradeR}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0867}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0508}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.6651}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0947}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0038}}}{space 1}
+{space 4}{space 0}{ralign 12:RE}{space 1}{c |}{space 1}{ralign 8:{res:{sf:  0.0790}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.4607}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3368}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.0300}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.3735}}}{space 1}
+{space 4}{space 0}{ralign 12:Govt}{space 1}{c |}{space 1}{ralign 8:{res:{sf: -0.2173}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2176}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.2489}}}{space 1}{space 1}{ralign 8:{res:{sf:  0.3797}}}{space 1}{space 1}{ralign 8:{res:{sf: -0.0731}}}{space 1}
+{space 4}{hline 13}{c  BT}{hline 10}{hline 10}{hline 10}{hline 10}{hline 10}
+
+{com}.         
+. // log close 
+.         log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Sean Hambali\Desktop\LPEM\Bu Hilda\Training PCA\pca.txt
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}30 May 2021, 16:37:42
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
